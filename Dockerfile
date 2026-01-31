@@ -1,7 +1,7 @@
 # Chrome VNC - 带 VNC 远程桌面的 Chrome 浏览器容器
 # https://github.com/DouDOU-start/chrome-vnc
 
-FROM ubuntu:22.04
+FROM debian:bookworm-slim
 
 LABEL maintainer="DouDOU-start"
 LABEL description="Chrome browser with VNC remote desktop support"
@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     locales \
     tzdata \
-    supervisor \
+    procps \
     # X11 和 VNC
     xvfb \
     x11vnc \
@@ -50,11 +50,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置语言环境
-RUN locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
 
 # 安装 Chrome/Chromium（根据架构选择）
-# amd64: Google Chrome（官方版本）
+# amd64: Google Chrome（官方版本，功能更完整）
 # arm64: Chromium（Google Chrome 不支持 arm64）
 RUN ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "amd64" ]; then \
@@ -65,8 +65,8 @@ RUN ARCH=$(dpkg --print-architecture) && \
         ln -sf /usr/bin/google-chrome-stable /usr/bin/chrome; \
     elif [ "$ARCH" = "arm64" ]; then \
         apt-get update && \
-        apt-get install -y --no-install-recommends chromium-browser && \
-        ln -sf /usr/bin/chromium-browser /usr/bin/chrome; \
+        apt-get install -y --no-install-recommends chromium && \
+        ln -sf /usr/bin/chromium /usr/bin/chrome; \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
