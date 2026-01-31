@@ -67,4 +67,4 @@ mkdir -p "$CHROME_USER_DATA_DIR"
 
 # 启动 Chrome
 echo "[Chrome] Starting with flags: ${CHROME_FLAGS[*]}"
-exec google-chrome "${CHROME_FLAGS[@]}" --user-data-dir="$CHROME_USER_DATA_DIR" "about:blank"
+exec chrome "${CHROME_FLAGS[@]}" --user-data-dir="$CHROME_USER_DATA_DIR" "about:blank"

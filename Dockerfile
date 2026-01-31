@@ -53,11 +53,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN locale-gen en_US.UTF-8 && \
     update-locale LANG=en_US.UTF-8
 
-# 安装 Google Chrome
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends google-chrome-stable && \
+# 安装 Chrome/Chromium（根据架构选择）
+# amd64: Google Chrome（官方版本）
+# arm64: Chromium（Google Chrome 不支持 arm64）
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+        apt-get update && \
+        apt-get install -y --no-install-recommends google-chrome-stable && \
+        ln -sf /usr/bin/google-chrome-stable /usr/bin/chrome; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        apt-get update && \
+        apt-get install -y --no-install-recommends chromium-browser && \
+        ln -sf /usr/bin/chromium-browser /usr/bin/chrome; \
+    fi && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 noVNC
