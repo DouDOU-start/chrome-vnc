@@ -7,10 +7,20 @@ on:
       - master
     tags:
       - 'v*'
+    # 只有这些文件变更时才触发构建
+    paths:
+      - 'Dockerfile'
+      - 'scripts/**'
+      - '.github/workflows/docker-publish.yml'
+      - '!scripts/release.sh'  # 发版脚本不触发
   pull_request:
     branches:
       - main
       - master
+    paths:
+      - 'Dockerfile'
+      - 'scripts/**'
+      - '.github/workflows/docker-publish.yml'
   workflow_dispatch:
     inputs:
       tag:
