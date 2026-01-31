@@ -14,7 +14,7 @@
 ## 快速开始
 
 ```bash
-docker run -d -p 6080:6080 -p 9222:9222 --shm-size=2g doudoustart/chrome-vnc
+docker run -d -p 6080:6080 -p 9222:9222 --shm-size=2g ghcr.io/doudou-start/chrome-vnc
 ```
 
 访问 http://localhost:6080 即可通过 Web 控制浏览器。
@@ -61,7 +61,7 @@ docker run -d \
   -p 6080:6080 \
   -p 9222:9222 \
   --shm-size=2g \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 ```
 
 ### 使用代理
@@ -73,7 +73,7 @@ docker run -d \
   -p 9222:9222 \
   --shm-size=2g \
   -e PROXY_SERVER=http://user:pass@proxy:8080 \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 
 # SOCKS5 代理
 docker run -d \
@@ -81,7 +81,7 @@ docker run -d \
   -p 9222:9222 \
   --shm-size=2g \
   -e PROXY_SERVER=socks5://proxy:1080 \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 ```
 
 ### 自定义分辨率
@@ -92,7 +92,7 @@ docker run -d \
   -p 9222:9222 \
   --shm-size=2g \
   -e RESOLUTION=1280x720x24 \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 ```
 
 ### 自定义 User-Agent
@@ -103,7 +103,7 @@ docker run -d \
   -p 9222:9222 \
   --shm-size=2g \
   -e USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 ```
 
 ### 使用 Docker Compose
@@ -111,7 +111,7 @@ docker run -d \
 ```yaml
 services:
   chrome:
-    image: doudoustart/chrome-vnc
+    image: ghcr.io/doudou-start/chrome-vnc
     ports:
       - "6080:6080"
       - "9222:9222"
@@ -211,7 +211,7 @@ docker run -d \
   -p 9222:9222 \
   --shm-size=2g \
   -e CHROME_ARGS="--lang=zh-CN --disable-web-security" \
-  doudoustart/chrome-vnc
+  ghcr.io/doudou-start/chrome-vnc
 ```
 
 ## 本地构建
