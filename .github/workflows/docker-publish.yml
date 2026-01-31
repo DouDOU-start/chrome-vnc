@@ -29,11 +29,8 @@ on:
         default: 'latest'
 
 env:
-  REGISTRY_GITHUB: ghcr.io
-  REGISTRY_DOCKER: docker.io
+  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # Docker Hub 镜像名（用户名不能包含连字符）
-  DOCKERHUB_IMAGE_NAME: doudoustart/chrome-vnc
 
 jobs:
   build:
@@ -56,26 +53,15 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_GITHUB }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY_DOCKER }}
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-        continue-on-error: true
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY_GITHUB }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY_DOCKER }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -101,7 +87,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY_GITHUB }}/${{ env.IMAGE_NAME }}
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
         continue-on-error: true
@@ -120,7 +106,7 @@ jobs:
           echo "### Quick Start" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker run -d -p 6080:6080 -p 9222:9222 --shm-size=2g ${{ env.REGISTRY_GITHUB }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "docker run -d -p 6080:6080 -p 9222:9222 --shm-size=2g ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Access noVNC at: http://localhost:6080" >> $GITHUB_STEP_SUMMARY
