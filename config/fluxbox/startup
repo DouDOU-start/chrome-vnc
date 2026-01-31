@@ -1,0 +1,6 @@
+#!/bin/bash
+# Fluxbox 启动脚本
+# 不设置壁纸，避免 fbsetbg 的 xmessage 弹窗
+
+# 什么都不做，让 fluxbox 使用默认的黑色背景
+exit 0

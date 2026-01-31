@@ -1,0 +1,18 @@
+# Fluxbox 初始化配置
+# 禁用壁纸设置，避免 xmessage 弹窗
+
+session.screen0.toolbar.visible: false
+session.screen0.tabs.usePixmap: false
+session.screen0.window.focus.alpha: 255
+session.screen0.window.unfocus.alpha: 255
+session.screen0.slit.autoHide: true
+session.screen0.toolbar.autoHide: true
+
+# 窗口放置策略
+session.screen0.windowPlacement: RowSmartPlacement
+
+# 禁用壁纸命令（空值表示不执行任何命令）
+session.screen0.rootCommand:
+
+# 样式文件
+session.styleFile: /usr/share/fluxbox/styles/bloe

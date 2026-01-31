@@ -17,10 +17,15 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHROME_ARGS="" \
     PROXY_SERVER="" \
     USER_AGENT="" \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8 \
-    TZ=Asia/Shanghai
+    LANG=zh_CN.UTF-8 \
+    LANGUAGE=zh_CN:zh \
+    LC_ALL=zh_CN.UTF-8 \
+    TZ=Asia/Shanghai \
+    # 输入法配置
+    GTK_IM_MODULE=fcitx \
+    QT_IM_MODULE=fcitx \
+    XMODIFIERS=@im=fcitx \
+    INPUT_METHOD=fcitx
 
 # 安装基础依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -37,6 +42,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     x11vnc \
     xterm \
     fluxbox \
+    x11-xserver-utils \
+    feh \
     # Python (noVNC 需要)
     python3 \
     python3-numpy \
@@ -44,6 +51,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     fonts-noto-cjk \
     fonts-wqy-zenhei \
+    # 中文输入法
+    fcitx \
+    fcitx-pinyin \
+    fcitx-googlepinyin \
+    fcitx-frontend-gtk3 \
+    fcitx-ui-classic \
+    fcitx-config-gtk \
+    im-config \
+    # 剪贴板同步
+    autocutsel \
     # 网络工具
     net-tools \
     dbus-x11 \
@@ -51,6 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 设置语言环境
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    sed -i '/zh_CN.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen
 
 # 安装 Chrome/Chromium（根据架构选择）

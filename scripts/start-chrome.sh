@@ -20,9 +20,9 @@ CHROME_FLAGS=(
     "--disable-default-apps"
     "--disable-component-extensions-with-background-pages"
 
-    # 窗口设置
-    "--start-maximized"
+    # 窗口设置 - 从 RESOLUTION 环境变量解析宽高
     "--window-position=0,0"
+    "--window-size=${RESOLUTION%%x*},$(echo $RESOLUTION | cut -d'x' -f2)"
 
     # 其他优化
     "--disable-background-networking"

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# 不使用 set -e，避免某些非关键命令失败导致脚本退出
 
 echo "=========================================="
 echo "  Chrome VNC Container Starting..."
@@ -19,7 +19,7 @@ chmod 1777 /tmp/.X11-unix
 rm -f /tmp/.X99-lock
 
 # 启动 Xvfb（虚拟显示器）
-echo "[1/4] Starting Xvfb..."
+echo "[1/5] Starting Xvfb..."
 Xvfb $DISPLAY -screen 0 $RESOLUTION -ac +extension GLX +render -noreset &
 XVFB_PID=$!
 
@@ -32,12 +32,30 @@ if ! kill -0 $XVFB_PID 2>/dev/null; then
     exit 1
 fi
 
-# 启动窗口管理器（可选，提供更好的桌面体验）
-echo "[2/4] Starting Fluxbox window manager..."
-fluxbox &
+# 设置黑色背景（在启动 fluxbox 之前）
+echo "[2/5] Setting up desktop environment..."
+xsetroot -solid black 2>/dev/null || true
+
+# 复制 fluxbox 配置（避免 xmessage 弹窗）
+mkdir -p /home/chrome/.fluxbox
+cp -r /config/fluxbox/* /home/chrome/.fluxbox/ 2>/dev/null || true
+
+# 启动窗口管理器
+fluxbox 2>/dev/null &
+sleep 1
+
+# 启动中文输入法
+echo "[2.5/5] Starting Fcitx input method..."
+fcitx -d 2>/dev/null &
+sleep 1
+
+# 启动剪贴板同步（支持外部复制粘贴到容器）
+echo "[2.6/5] Starting clipboard sync..."
+autocutsel -fork 2>/dev/null &
+autocutsel -selection PRIMARY -fork 2>/dev/null &
 
 # 启动 x11vnc
-echo "[3/4] Starting VNC server..."
+echo "[3/5] Starting VNC server..."
 x11vnc -display $DISPLAY \
     -forever \
     -shared \
@@ -45,17 +63,18 @@ x11vnc -display $DISPLAY \
     -passwd "$VNC_PASSWORD" \
     -xkb \
     -noxrecord \
-    -noxfixes \
     -noxdamage \
     -repeat \
     -wait 5 \
+    -ncache 10 \
+    -ncache_cr \
     -o /dev/null &
 
 # 等待 VNC 服务器启动
-sleep 1
+sleep 2
 
 # 启动 noVNC
-echo "[4/4] Starting noVNC..."
+echo "[4/5] Starting noVNC..."
 /opt/novnc/utils/novnc_proxy \
     --vnc localhost:$VNC_PORT \
     --listen $NOVNC_PORT \
@@ -65,7 +84,7 @@ echo "[4/4] Starting noVNC..."
 sleep 1
 
 # 启动 Chrome
-echo "[Chrome] Starting Chrome browser..."
+echo "[5/5] Starting Chrome browser..."
 /scripts/start-chrome.sh &
 
 echo "=========================================="
