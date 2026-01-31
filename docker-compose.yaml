@@ -1,0 +1,80 @@
+# Chrome VNC - 本地测试配置
+# 启动: docker compose up -d
+# 访问: http://localhost:6080
+
+services:
+  chrome-vnc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chrome-vnc
+    ports:
+      # noVNC Web 访问
+      - "6080:6080"
+      # VNC 原生端口（可选，用 VNC 客户端连接）
+      - "5900:5900"
+      # Chrome CDP 端口
+      - "9222:9222"
+    environment:
+      # 屏幕分辨率
+      - RESOLUTION=1920x1080x24
+      # VNC 密码
+      - VNC_PASSWORD=chrome
+      # 代理服务器（可选）
+      # - PROXY_SERVER=http://user:pass@proxy:8080
+      # 自定义 User-Agent（可选）
+      # - USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+      # 额外 Chrome 参数（可选）
+      # - CHROME_ARGS=--lang=zh-CN
+    # 共享内存（Chrome 需要）
+    shm_size: '2gb'
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    # 健康检查
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9222/json/version || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # 重启策略
+    restart: unless-stopped
+
+  # 带代理的 Chrome VNC 示例
+  chrome-vnc-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chrome-vnc-proxy
+    ports:
+      - "6081:6080"
+      - "9223:9222"
+    environment:
+      - RESOLUTION=1280x720x24
+      - VNC_PASSWORD=proxy123
+      - PROXY_SERVER=socks5://127.0.0.1:1080
+    shm_size: '2gb'
+    profiles:
+      - proxy
+    restart: unless-stopped
+
+  # 多实例示例
+  chrome-vnc-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chrome-vnc-2
+    ports:
+      - "6082:6080"
+      - "9224:9222"
+    environment:
+      - RESOLUTION=1920x1080x24
+      - VNC_PASSWORD=chrome2
+    shm_size: '2gb'
+    profiles:
+      - multi
+    restart: unless-stopped

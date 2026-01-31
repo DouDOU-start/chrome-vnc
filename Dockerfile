@@ -1,0 +1,96 @@
+# Chrome VNC - 带 VNC 远程桌面的 Chrome 浏览器容器
+# https://github.com/DouDOU-start/chrome-vnc
+
+FROM ubuntu:22.04
+
+LABEL maintainer="DouDOU-start"
+LABEL description="Chrome browser with VNC remote desktop support"
+
+# 环境变量
+ENV DEBIAN_FRONTEND=noninteractive \
+    DISPLAY=:99 \
+    VNC_PORT=5900 \
+    NOVNC_PORT=6080 \
+    CDP_PORT=9222 \
+    RESOLUTION=1920x1080x24 \
+    VNC_PASSWORD=chrome \
+    CHROME_ARGS="" \
+    PROXY_SERVER="" \
+    USER_AGENT="" \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    TZ=Asia/Shanghai
+
+# 安装基础依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # 基础工具
+    ca-certificates \
+    curl \
+    wget \
+    gnupg \
+    locales \
+    tzdata \
+    supervisor \
+    # X11 和 VNC
+    xvfb \
+    x11vnc \
+    xterm \
+    fluxbox \
+    # Python (noVNC 需要)
+    python3 \
+    python3-numpy \
+    # 字体
+    fonts-liberation \
+    fonts-noto-cjk \
+    fonts-wqy-zenhei \
+    # 网络工具
+    net-tools \
+    dbus-x11 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置语言环境
+RUN locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
+
+# 安装 Google Chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends google-chrome-stable && \
+    rm -rf /var/lib/apt/lists/*
+
+# 安装 noVNC
+RUN mkdir -p /opt/novnc && \
+    curl -sL https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz | tar -xzf - -C /opt/novnc --strip-components=1 && \
+    mkdir -p /opt/novnc/utils/websockify && \
+    curl -sL https://github.com/novnc/websockify/archive/refs/tags/v0.11.0.tar.gz | tar -xzf - -C /opt/novnc/utils/websockify --strip-components=1 && \
+    ln -s /opt/novnc/vnc.html /opt/novnc/index.html
+
+# 创建非 root 用户
+RUN useradd -m -s /bin/bash chrome && \
+    mkdir -p /home/chrome/.config /home/chrome/.vnc && \
+    chown -R chrome:chrome /home/chrome
+
+# 复制脚本和配置
+COPY scripts/ /scripts/
+COPY config/ /config/
+
+# 设置脚本权限
+RUN chmod +x /scripts/*.sh
+
+# 设置工作目录
+WORKDIR /home/chrome
+
+# 暴露端口
+# 5900: VNC 原生端口
+# 6080: noVNC Web 端口
+# 9222: Chrome CDP 端口
+EXPOSE 5900 6080 9222
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -sf http://localhost:${CDP_PORT}/json/version || exit 1
+
+# 入口脚本
+ENTRYPOINT ["/scripts/entrypoint.sh"]

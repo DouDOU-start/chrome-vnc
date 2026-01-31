@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+LICENSE
+*.md
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+
+# Docker Compose (only for local testing)
+docker-compose*.yaml
+docker-compose*.yml
+
+# Logs
+*.log
+logs/
