@@ -157,4 +157,4 @@ info "查看构建进度: https://github.com/$(git remote get-url origin | sed '
 echo ""
 info "发布后可使用以下命令拉取镜像:"
 echo "  docker pull ghcr.io/doudou-start/chrome-vnc:${NEW_VERSION}"
-echo "  docker pull doudoustart/chrome-vnc:${NEW_VERSION}"
+echo "  docker pull ghcr.io/doudou-start/chrome-vnc:latest"
